@@ -9,7 +9,7 @@ from visual.renderer import draw   # renderer.draw(font, …)
 # Pygame font (initialised once)
 # ----------------------------
 pg.font.init()
-FONT = pg.font.SysFont(None, 24)          # default font, 24 px
+FONT = pg.font.SysFont(None, 22)          # smaller font, 16 px
 
 # ----------------------------
 # Main loop

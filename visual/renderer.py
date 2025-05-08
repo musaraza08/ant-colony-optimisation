@@ -85,3 +85,23 @@ def draw(sim: Simulation,
                                                                     255, 255)
     )
     screen.blit(txt_surf, (10, 5))
+
+    # RNG seed information (same colour, just a bit lower on the y-axis)
+    seed_surf = font.render(f"Seed: {sim.seed}", True, (255, 255, 255))
+    screen.blit(seed_surf, (10, 25))
+
+    # -------- metrics -------------------------------------------------
+    # row 1 : time to first pickup
+    t1 = sim.seconds(sim.first_food_tick)
+    t1_surf = font.render(f"First food: {t1}", True, (255, 255, 255))
+    screen.blit(t1_surf, (10, 45))
+
+    # row 2 : time to finish
+    t_all = sim.seconds(sim.all_food_tick)
+    t_all_surf = font.render(f"All food:   {t_all}", True, (255, 255, 255))
+    screen.blit(t_all_surf, (10, 65))
+
+    # row 3 : throughput
+    thr = f"{sim.throughput:.2f} /s"
+    thr_surf = font.render(f"Rate:       {thr}", True, (255, 255, 255))
+    screen.blit(thr_surf, (10, 85))
