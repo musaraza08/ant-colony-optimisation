@@ -1,1 +1,0 @@
-# makes `core` a package

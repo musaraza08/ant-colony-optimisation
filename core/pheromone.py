@@ -4,10 +4,6 @@ import numpy as np
 
 
 class PheromoneGrid:
-    """
-    Plain 2-D float array with evaporate / deposit utilities.
-    Kept separate so we can swap in faster NumPy tricks later.
-    """
 
     def __init__(self, w: int, h: int, tau0: float):
         self.tau = np.full((w, h), tau0, dtype=np.float32)

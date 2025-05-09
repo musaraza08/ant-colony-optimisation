@@ -6,9 +6,7 @@ import config
 from core.environment import Cell
 from simulation import Simulation
 
-# ------------------------------------------------------------------ #
-#                   Colours & tiny utility helpers                   #
-# ------------------------------------------------------------------ #
+# Colours
 C_BG = (30, 30, 30)
 C_GRID = (50, 50, 50)
 C_NEST = (0, 220, 0)
@@ -29,9 +27,7 @@ def _pheromone_surface(pher_tau, tile):
     return pg.transform.scale(surf, (w * tile, h * tile))
 
 
-# ------------------------------------------------------------------ #
-#                               DRAW                                 #
-# ------------------------------------------------------------------ #
+# Drawing the simulation
 def draw(sim: Simulation,
          screen: pg.Surface,
          font: pg.font.Font) -> None:
@@ -86,11 +82,10 @@ def draw(sim: Simulation,
     )
     screen.blit(txt_surf, (10, 5))
 
-    # RNG seed information (same colour, just a bit lower on the y-axis)
     seed_surf = font.render(f"Seed: {sim.seed}", True, (255, 255, 255))
     screen.blit(seed_surf, (10, 25))
 
-    # -------- metrics -------------------------------------------------
+    # Metrics
     # row 1 : time to first pickup
     t1 = sim.seconds(sim.first_food_tick)
     t1_surf = font.render(f"First food: {t1}", True, (255, 255, 255))

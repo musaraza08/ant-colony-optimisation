@@ -13,23 +13,19 @@ class Cell(IntEnum):
     WALL = 1
     NEST = 2
     FOOD = 3
-    DEPLETED = 4          # visible, no-longer-edible food
+    DEPLETED = 4
 
 
 class Environment:
-    """
-    Discrete grid that stores semantic cell types, walls and food resources.
-    No algorithmic behaviour lives here – just world state + helper queries.
-    """
 
     def __init__(self, w: int, h: int):
         self.w, self.h = w, h
 
-        # --- static layers -------------------------------------------------
+        # Static layers
         self.grid = np.full((w, h), Cell.EMPTY, dtype=np.uint8)
         self.grid[config.NEST_POS] = Cell.NEST
 
-        # --- food ----------------------------------------------------------
+        # Food
         self.food_positions: Set[Tuple[int, int]]
         if getattr(config, "FOOD_POSITIONS", None):
             self.food_positions = set(config.FOOD_POSITIONS)
@@ -38,10 +34,10 @@ class Environment:
                 getattr(config, "NUM_FOOD_SOURCES", 3))
             )
 
-        # --- walls ---------------------------------------------------------
+        # Walls
         self._generate_walls()
 
-        # --- food capacity bookkeeping ------------------------------------
+        # Food capacity bookkeeping
         self.food_left: Dict[Tuple[int, int], int] = {
             pos: config.FOOD_CAPACITY for pos in self.food_positions
         }
@@ -55,9 +51,7 @@ class Environment:
         self.paths_by_food: Dict[Tuple[int, int],
                                  List[List[Tuple[int, int]]]] = {}
 
-    # ------------------------------------------------------------------ #
-    #                       Public helper methods                         #
-    # ------------------------------------------------------------------ #
+    # Helper methods
     def neighbours(self, pos: Tuple[int, int]) -> List[Tuple[int, int]]:
         """4-neighbourhood (no diagonals) that ignores walls."""
         x, y = pos
@@ -72,10 +66,6 @@ class Environment:
     def consume_food(self,
                      pos: Tuple[int, int],
                      pher) -> bool:
-        """
-        Remove ONE unit of food.  
-        Returns True if the tile became empty as a result.
-        """
         if pos not in self.food_left:
             return False
 
@@ -83,7 +73,7 @@ class Environment:
         if self.food_left[pos] > 0:
             return False
 
-        # exhaust → keep the tile, but in "greyed-out" state
+        # Exhaust = keep the tile, but in "greyed-out" state
         self.grid[pos] = Cell.DEPLETED
         del self.food_left[pos]
         self.food_positions.discard(pos)
@@ -95,9 +85,7 @@ class Environment:
                     path: List[Tuple[int, int]]) -> None:
         self.paths_by_food.setdefault(food_pos, []).append(list(path))
 
-    # ------------------------------------------------------------------ #
-    #                            internals                                #
-    # ------------------------------------------------------------------ #
+    # Internals
     def _random_food_positions(self, n: int) -> List[Tuple[int, int]]:
         coords = set()
         while len(coords) < n:
@@ -113,18 +101,18 @@ class Environment:
         max_len = getattr(config, "WALL_MAX_LEN", 10)
 
         for _ in range(num):
-            for _attempt in range(30):          # give up if cannot place
+            for _attempt in range(30):  # give up if cannot place
                 length = random.randint(min_len, max_len)
-                if random.random() < 0.5:       # horizontal
+                if random.random() < 0.5:  # horizontal
                     y = random.randint(0, self.h - 1)
                     x0 = random.randint(0, self.w - length)
                     cells = [(x0 + i, y) for i in range(length)]
-                else:                           # vertical
+                else:  # vertical
                     x = random.randint(0, self.w - 1)
                     y0 = random.randint(0, self.h - length)
                     cells = [(x, y0 + i) for i in range(length)]
 
-                # overlap check
+                # Overlap check
                 if any(c == config.NEST_POS or c in self.food_positions
                        or self.grid[c] != Cell.EMPTY for c in cells):
                     continue

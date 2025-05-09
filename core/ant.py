@@ -1,7 +1,3 @@
-"""
-Single Ant agent:  holds its own state machine and interacts with Environment
-and PheromoneGrid.  Pure logic, no pygame import here.
-"""
 from __future__ import annotations
 import random
 import math
@@ -20,36 +16,27 @@ class Ant:
         self.pher = pher
         self.reset()
 
-    # -------------------------------------------------------------- #
-    #                        Public interface                         #
-    # -------------------------------------------------------------- #
     def step(self) -> None:
         if self.state == "searching":
             self._search_step()
         else:
             self._return_step()
 
-    # -------------------------------------------------------------- #
-    #                              private                            #
-    # -------------------------------------------------------------- #
     def _search_step(self) -> None:
-        # ------------------------------------------------ timeout check
+        # Timeout check
         self.steps_since_nest += 1
         if self.steps_since_nest > config.SEARCH_TIMEOUT:
-            # give up → return home WITHOUT laying pheromone / stats
+            # Give up → return home WITHOUT laying pheromone / stats
             self.skip_deposit = True
-            self.deposit_path = []                 # nothing to record
+            self.deposit_path = []  # nothing to record
             self.return_stack = self.path[-2::-1]  # retrace
             self.state = "returning"
             return
 
-        # -----------------------------------------------------------------
-        # candidate moves (4-neighbourhood) and   *exclude the tile we
-        #   just came from*  so the ant does not oscillate back & forth
-        # -----------------------------------------------------------------
+        # Candidate moves (4-neighbourhood) and exclude the tile we just came from so the ant does not oscillate back & forth
         neighbours = self.env.neighbours(self.pos)
 
-        if len(self.path) > 1:                    # there is a previous tile
+        if len(self.path) > 1:
             prev = self.path[-2]
             if prev in neighbours:
                 filtered = [n for n in neighbours if n != prev]
@@ -61,7 +48,7 @@ class Ant:
             self.reset()
             return
 
-        # transition probabilities
+        # Transition probabilities
         probs = [(self.pher.tau[n] ** config.ALPHA) *
                  (self._heuristic(n) ** config.BETA)
                  for n in neighbours]
@@ -81,7 +68,7 @@ class Ant:
 
         cell_here = self.env.grid[self.pos]
 
-        # -------- still fresh food ----------------------------------
+        # Fresh food
         if cell_here == Cell.FOOD:
             exhausted = self.env.consume_food(self.pos, self.pher)
             if exhausted:
@@ -91,15 +78,15 @@ class Ant:
 
             self.state = "returning"
             self.deposit_path = list(self.path)
-            self.return_stack = self.path[-2::-1]     # back home
+            self.return_stack = self.path[-2::-1]  # back home
 
-        # -------- already depleted (grey) ---------------------------
+        # Depleted food source
         elif cell_here == Cell.DEPLETED:
             # treat as failure: no stats, no deposit, clear the trail
             for x, y in self.path:
                 self.pher.tau[x, y] = config.TAU0
             self.skip_deposit = True
-            self.deposit_path = []                    # nothing to record
+            self.deposit_path = []  # nothing to record
 
             self.state = "returning"
             self.return_stack = self.path[-2::-1]
@@ -119,7 +106,7 @@ class Ant:
                     self.pher.deposit(self.deposit_path, config.Q / L)
             self.reset()
 
-    # ----------------------- helpers --------------------------------
+    # Helpers
     def _move_to(self, nxt: Tuple[int, int]) -> None:
         self.pos = nxt
         self.path.append(nxt)
@@ -139,4 +126,4 @@ class Ant:
         self.return_stack: List[Tuple[int, int]] = []
         self.deposit_path: List[Tuple[int, int]] = []
         self.skip_deposit = False
-        self.steps_since_nest = 0          # ← counter for timeout
+        self.steps_since_nest = 0  # counter for timeout

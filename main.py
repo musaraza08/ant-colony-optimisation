@@ -3,17 +3,12 @@ import pygame as pg
 
 import config
 from simulation import Simulation
-from visual.renderer import draw   # renderer.draw(font, …)
+from visual.renderer import draw
 
-# ----------------------------
-# Pygame font (initialised once)
-# ----------------------------
 pg.font.init()
-FONT = pg.font.SysFont(None, 22)          # smaller font, 16 px
+FONT = pg.font.SysFont(None, 22)
 
-# ----------------------------
 # Main loop
-# ----------------------------
 
 
 def main() -> None:
